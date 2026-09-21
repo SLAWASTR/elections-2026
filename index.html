@@ -20,6 +20,7 @@
       justify-content: center;
       padding: 32px 16px;
       background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+      overflow-x: hidden;
     }
 
     .container {
@@ -289,6 +290,14 @@
       border-color: #dc2626;
     }
 
+    .btn-ban-protected {
+      position: relative;
+      background: #fff1f2;
+      border-color: #f43f5e;
+      color: #be123c;
+      font-weight: 700;
+    }
+
     /* Добавление новой партии */
     .add-party-form {
       display: flex;
@@ -354,14 +363,8 @@
     }
 
     @keyframes modalFadeIn {
-      from {
-        opacity: 0;
-        transform: scale(0.96);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
     }
 
     .modal-header {
@@ -391,9 +394,7 @@
       line-height: 1;
     }
 
-    .modal-close:hover {
-      color: #0f172a;
-    }
+    .modal-close:hover { color: #0f172a; }
 
     .modal-desc {
       font-size: 12px;
@@ -438,9 +439,7 @@
       color: #ffffff;
     }
 
-    .btn-modal-add:hover {
-      background: #1d4ed8;
-    }
+    .btn-modal-add:hover { background: #1d4ed8; }
 
     .btn-modal-sub {
       background: #ffffff;
@@ -451,6 +450,108 @@
     .btn-modal-sub:hover {
       background: #fff1f2;
       border-color: #f43f5e;
+    }
+
+    /* Полноэкранный алярм: "ТЫ ЧТО, ИНОАГЕНТ?!" */
+    .foreign-agent-screen {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.94);
+      z-index: 99999;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      animation: alertPulse 0.8s infinite alternate ease-in-out;
+    }
+
+    @keyframes alertPulse {
+      0% { box-shadow: inset 0 0 80px rgba(220, 38, 38, 0.5); }
+      100% { box-shadow: inset 0 0 160px rgba(37, 99, 235, 0.7); }
+    }
+
+    .fa-content-box {
+      background: #090d16;
+      border: 3px solid #ef4444;
+      border-radius: 20px;
+      padding: 36px 32px;
+      max-width: 620px;
+      width: 100%;
+      color: #fff;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(239, 68, 68, 0.35);
+      animation: modalShake 0.4s ease-in-out;
+    }
+
+    @keyframes modalShake {
+      0%, 100% { transform: scale(1); }
+      20% { transform: scale(1.03) rotate(-1deg); }
+      40% { transform: scale(1.03) rotate(1deg); }
+      60% { transform: scale(1.02) rotate(-0.5deg); }
+      80% { transform: scale(1.01) rotate(0.5deg); }
+    }
+
+    .fa-badge {
+      display: inline-block;
+      background: #ef4444;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      padding: 4px 12px;
+      border-radius: 6px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .fa-title {
+      font-size: clamp(26px, 5vw, 36px);
+      font-weight: 900;
+      line-height: 1.15;
+      color: #f87171;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      letter-spacing: -0.5px;
+      text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+    }
+
+    .fa-text {
+      font-size: 15px;
+      color: #cbd5e1;
+      line-height: 1.5;
+      margin-bottom: 22px;
+    }
+
+    .fa-quote {
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 3px solid #38bdf8;
+      padding: 10px 14px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: #94a3b8;
+      text-align: left;
+      border-radius: 0 8px 8px 0;
+      font-family: monospace;
+    }
+
+    .fa-btn {
+      background: #ef4444;
+      color: #ffffff;
+      border: none;
+      padding: 13px 28px;
+      font-size: 15px;
+      font-weight: 800;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.15s;
+      box-shadow: 0 10px 20px rgba(239, 68, 68, 0.4);
+      width: 100%;
+    }
+
+    .fa-btn:hover {
+      background: #dc2626;
+      transform: translateY(-1px);
     }
   </style>
 </head>
@@ -522,17 +623,37 @@
     </div>
   </div>
 
+  <!-- Полноэкранный алярм: ТЫ ЧТО, ИНОАГЕНТ?! -->
+  <div id="foreignAgentAlert" class="foreign-agent-screen">
+    <div class="fa-content-box">
+      <div class="fa-badge">⚠️ Тревога особой важности</div>
+      <div class="fa-title">ТЫ ЧТО, ИНОАГЕНТ?! 🚨</div>
+      <p class="fa-text">
+        Ты на какую кнопку вообще жмёшь, милок? Какая ещё блокировка фундамента стабильности?! 
+        У тебя там Госдеп на связи или гранты карман жгут? В системе зафиксирована деструктивная мыследеятельность!
+      </p>
+      <div class="fa-quote">
+        [СИСТЕМА]: Попытка отстранения ЕР аннулирована.<br>
+        [САНКЦИЯ]: На участок выехал наряд казаков и ОБЭП.<br>
+        [ШТРАФ]: В пользу стабильности автоматически начислено +100 000 голосов ДЭГ.
+      </div>
+      <button class="fa-btn" onclick="repentAndDismiss()">Осознал, виновен, слава стабильности! 🙏</button>
+    </div>
+  </div>
+
   <script>
+    const INITIAL_VOTES = 500000;
+
     let isChurovMode = false;
     let observersExpelled = false;
     let activeCustomPartyId = null;
 
     const parties = [
-      { id: 1, name: 'Единая Россия', votes: 1200, banned: false, color: '#0055a5' },
-      { id: 2, name: 'ЛДПР', votes: 4200, banned: false, color: '#0039a6' },
-      { id: 3, name: 'КПРФ', votes: 9000, banned: false, color: '#dc2626' },
-      { id: 4, name: 'Новые люди', votes: 6500, banned: false, color: '#00a896' },
-      { id: 5, name: 'Яблоко', votes: 2800, banned: false, color: '#16a34a' }
+      { id: 1, name: 'Единая Россия', votes: INITIAL_VOTES, banned: false, color: '#0055a5' },
+      { id: 2, name: 'ЛДПР', votes: INITIAL_VOTES, banned: false, color: '#0039a6' },
+      { id: 3, name: 'КПРФ', votes: INITIAL_VOTES, banned: false, color: '#dc2626' },
+      { id: 4, name: 'Новые люди', votes: INITIAL_VOTES, banned: false, color: '#00a896' },
+      { id: 5, name: 'Яблоко', votes: INITIAL_VOTES, banned: false, color: '#16a34a' }
     ];
 
     const historicalParties1995 = [
@@ -592,6 +713,13 @@
       logBox.prepend(entry);
     }
 
+    // Проверка, является ли партия Единой Россией
+    function isUnitedRussia(party) {
+      if (!party) return false;
+      const clean = party.name.toLowerCase().replace(/[^a-zа-яё]/gi, '');
+      return party.id === 1 || clean.includes('единаяроссия');
+    }
+
     function render() {
       const container = document.getElementById('partiesList');
       container.innerHTML = '';
@@ -607,18 +735,20 @@
           percent = (isChurovMode ? (raw * 1.46) : raw).toFixed(2);
         }
 
+        const isER = isUnitedRussia(party);
         const item = document.createElement('div');
         item.className = `party-item ${party.banned ? 'banned' : ''}`;
+        
         item.innerHTML = `
           <div class="party-row-top">
             <div class="party-name-box">
               <span class="party-badge" style="background: ${party.color}"></span>
-              <span class="party-name">${party.name}</span>
+              <span class="party-name">${party.name} ${isER ? '🛡️' : ''}</span>
             </div>
             <div class="party-votes">${formatter.format(party.votes)}</div>
           </div>
           <div class="party-meta">
-            ${percent}% · статус: ${party.banned ? 'заблокирована Минюстом' : 'активна'}
+            ${percent}% · статус: ${party.banned ? 'заблокирована Минюстом' : (isER ? 'безоговорочный лидер' : 'активна')}
           </div>
           <div class="party-row-bottom">
             <div class="progress-bar-wrap">
@@ -630,7 +760,9 @@
               <button class="btn" ${party.banned ? 'disabled' : ''} onclick="addVotes(${party.id}, 100)" title="Добавить 100 голосов">+100</button>
               <button class="btn" ${party.banned ? 'disabled' : ''} onclick="addVotes(${party.id}, 1000)" title="Добавить 1 000 голосов">+1 000</button>
               <button class="btn btn-custom" ${party.banned ? 'disabled' : ''} onclick="openCustomVoteModal(${party.id})" title="Ввести своё количество голосов">± Своё</button>
-              <button class="btn btn-ban" onclick="toggleBan(${party.id})">${party.banned ? 'Разбан' : 'Бан'}</button>
+              <button class="btn btn-ban ${isER ? 'btn-ban-protected' : ''}" onclick="toggleBan(${party.id})">
+                ${party.banned ? 'Разбан' : (isER ? 'Бан 🔒' : 'Бан')}
+              </button>
             </div>
           </div>
         `;
@@ -715,15 +847,41 @@
       closeCustomVoteModal();
     }
 
+    /* Логика бана с перехватом Единой России */
     function toggleBan(partyId) {
       const party = parties.find(p => p.id === partyId);
-      if (party) {
-        party.banned = !party.banned;
-        log(party.banned 
-          ? `⚠️ Партия «${party.name}» отстранена за нарушения регламента печати листовок.` 
-          : `✅ Партия «${party.name}» восстановлена в списках по звонку сверху.`);
-        render();
+      if (!party) return;
+
+      if (isUnitedRussia(party)) {
+        triggerForeignAgentAlert();
+        return;
       }
+
+      party.banned = !party.banned;
+      log(party.banned 
+        ? `⚠️ Партия «${party.name}» отстранена за нарушения регламента печати листовок.` 
+        : `✅ Партия «${party.name}» восстановлена в списках по звонку сверху.`);
+      render();
+    }
+
+    /* Алярм Иноагента */
+    function triggerForeignAgentAlert() {
+      const alertScreen = document.getElementById('foreignAgentAlert');
+      alertScreen.style.display = 'flex';
+
+      // Наказываем систему за крамольные мысли: +100k Единой России
+      const er = parties.find(p => p.id === 1);
+      if (er) {
+        er.votes += 100000;
+      }
+
+      log(`🚨 ПРЕСЕЧЕНА ДИВЕРСИЯ! Попытка блокировки партии власти! Запущена проверка на экстремизм и финансирование извне.`);
+      render();
+    }
+
+    function repentAndDismiss() {
+      document.getElementById('foreignAgentAlert').style.display = 'none';
+      log(`🕊️ Администратор принёс искренние извинения за случайное нажатие. Протокол замяли.`);
     }
 
     // Проверка, есть ли уже партия в списках
@@ -851,7 +1009,12 @@
     }
 
     function resetVotes() {
-      parties.forEach(p => p.votes = 100);
+      parties.forEach(p => {
+        p.votes = INITIAL_VOTES;
+        if (!isUnitedRussia(p)) {
+          p.banned = false;
+        }
+      });
       isChurovMode = false;
       observersExpelled = false;
       const badge = document.getElementById('statusBadge');
@@ -861,7 +1024,7 @@
         badge.style.color = '#4ade80';
         badge.style.background = 'rgba(34, 197, 94, 0.15)';
       }
-      log(`🔄 Все протоколы переписаны начисто.`);
+      log(`🔄 Все протоколы переписаны начисто: всем партиям выставлено по ${formatter.format(INITIAL_VOTES)} голосов.`);
       render();
     }
 
@@ -874,12 +1037,12 @@
       parties.push({
         id: Date.now(),
         name: name,
-        votes: 100,
+        votes: INITIAL_VOTES,
         banned: false,
         color: randomColors[Math.floor(Math.random() * randomColors.length)]
       });
 
-      log(`📝 Зарегистрирован независимый кандидат «${name}». Наблюдение усилено.`);
+      log(`📝 Зарегистрирован независимый кандидат «${name}» с базовыми ${formatter.format(INITIAL_VOTES)} голосами. Наблюдение усилено.`);
       input.value = '';
       render();
     }
