@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ГАС «Выборы 2026» — Админ-панель</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #0f172a;
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 32px 16px;
+      background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 760px;
+    }
+
+    /* Верхняя шапка */
+    .top-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      color: #f8fafc;
+    }
+
+    .top-header h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .top-header p {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #4ade80;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #22c55e;
+    }
+
+    /* Панель супер-инструментов */
+    .special-ops {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .special-ops-title {
+      color: #cbd5e1;
+      font-size: 13px;
+      font-weight: 700;
+      width: 100%;
+      margin-bottom: 2px;
+    }
+
+    .btn-op {
+      background: #334155;
+      color: #f1f5f9;
+      border: 1px solid #475569;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .btn-op:hover {
+      background: #475569;
+      border-color: #64748b;
+    }
+
+    .btn-op-red {
+      background: rgba(220, 38, 38, 0.2);
+      border-color: rgba(220, 38, 38, 0.5);
+      color: #f87171;
+    }
+    .btn-op-red:hover {
+      background: rgba(220, 38, 38, 0.4);
+    }
+
+    /* Главная карточка */
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      padding: 24px 28px;
+    }
+
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f1f5f9;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .total-stat {
+      font-size: 13px;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    /* Элемент партии */
+    .party-item {
+      padding: 16px 0;
+      border-bottom: 1px solid #f1f5f9;
+      transition: 0.2s ease;
+    }
+
+    .party-item:last-child {
+      border-bottom: none;
+    }
+
+    .party-item.banned {
+      opacity: 0.45;
+      filter: grayscale(0.8);
+    }
+
+    .party-row-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
+    }
+
+    .party-name-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .party-badge {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .party-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.3;
+    }
+
+    .party-votes {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+      font-variant-numeric: tabular-nums;
+      margin-left: 12px;
+      flex-shrink: 0;
+    }
+
+    .party-meta {
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+
+    .party-row-bottom {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .progress-bar-wrap {
+      flex: 1;
+      height: 8px;
+      background-color: #f1f5f9;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      cursor: pointer;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #2563eb;
+      transition: 0.15s;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #eff6ff;
+      border-color: #3b82f6;
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      border-color: #e2e8f0;
+      color: #94a3b8;
+    }
+
+    .btn-ban {
+      border-color: #fecaca;
+      color: #dc2626;
+    }
+
+    .btn-ban:hover:not(:disabled) {
+      background: #fef2f2;
+      border-color: #dc2626;
+    }
+
+    /* Добавление новой партии */
+    .add-party-form {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed #cbd5e1;
+    }
+
+    .add-party-input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    /* Лог событий */
+    .audit-log {
+      margin-top: 20px;
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 16px;
+      color: #94a3b8;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 140px;
+      overflow-y: auto;
+      border: 1px solid #1e293b;
+    }
+
+    .log-entry {
+      margin-bottom: 4px;
+    }
+    .log-time {
+      color: #38bdf8;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="top-header">
+      <div>
+        <h1>АДМИН ПАНЕЛЬ «ВЫБОРЫ 2026»</h1>
+        <p>Админ панель подсчёта голосов. Добро пожаловать Пал Лаичь! · Автор: slawastr</p>
+      </div>
+      <div class="status-badge" id="statusBadge">
+        <span class="status-dot"></span>
+        ГАС «Выборы» онлайн
+      </div>
+    </div>
+
+    <!-- Спец-инструменты -->
+    <div class="special-ops">
+      <div class="special-ops-title">🛠️ Специнструменты администратора</div>
+      <button class="btn-op" onclick="degDrop()">⚡ Ночной вброс ДЭГ (+50 000 ЕР)</button>
+      <button class="btn-op" onclick="mobilizeStateWorkers()">🚌 Загнать бюджетников на участки</button>
+      <button class="btn-op" onclick="expelObservers()">🚫 Убрать наблюдателей</button>
+      <button class="btn-op" onclick="backTo1995()">📼 Back to 1995</button>
+      <button class="btn-op" onclick="activateChurovMode()">📊 Включить режим 146%</button>
+      <button class="btn-op" onclick="curtainCam()">🎥 Завесить камеры шторкой</button>
+      <button class="btn-op" onclick="balanceToPlan()">🎯 План «Стабильность 76%»</button>
+      <button class="btn-op btn-op-red" onclick="resetVotes()">🔄 Сбросить протоколы</button>
+    </div>
+
+    <!-- Список голосов -->
+    <div class="card">
+      <div class="card-header-row">
+        <div class="card-title">Голоса — демонстрационные данные</div>
+        <div class="total-stat" id="totalStat">Всего учтено: 0</div>
+      </div>
+
+      <div id="partiesList"></div>
+
+      <!-- Форма добавления кандидата -->
+      <div class="add-party-form">
+        <input type="text" id="newPartyName" class="add-party-input" placeholder="Название новой партии (напр. Партия любителей пива)...">
+        <button class="btn" onclick="addNewParty()">+ Добавить партию</button>
+      </div>
+    </div>
+
+    <!-- Лог наблюдателя -->
+    <div class="audit-log" id="auditLog">
+      <div class="log-entry"><span class="log-time">[15:00:00]</span> Система инициализирована. Пал Лаичь авторизован. Автор: slawastr.</div>
+    </div>
+  </div>
+
+  <script>
+    let isChurovMode = false;
+    let observersExpelled = false;
+
+    const parties = [
+      { id: 1, name: 'Единая Россия', votes: 1200, banned: false, color: '#0055a5' },
+      { id: 2, name: 'ЛДПР', votes: 4200, banned: false, color: '#0039a6' },
+      { id: 3, name: 'КПРФ', votes: 9000, banned: false, color: '#dc2626' },
+      { id: 4, name: 'Новые люди', votes: 6500, banned: false, color: '#00a896' },
+      { id: 5, name: 'Яблоко', votes: 2800, banned: false, color: '#16a34a' }
+    ];
+
+    const historicalParties1995 = [
+      'Коммунистическая партия Российской Федерации (КПРФ)',
+      'Либерально-демократическая партия России (ЛДПР)',
+      'Всероссийское общественно-политическое движение «Наш дом — Россия»',
+      'Общественное объединение «Яблоко»',
+      '«Женщины России»',
+      'Избирательный блок «Коммунисты — Трудовая Россия — за Советский Союз»',
+      '«Конгресс русских общин»',
+      '«Партия самоуправления трудящихся»',
+      'Избирательный блок «Демократический выбор России — Объединённые демократы»',
+      'Аграрная партия России',
+      'Избирательный блок «Держава»',
+      'Общественно-политическое движение «Вперёд, Россия!»',
+      'Избирательный блок «Власть — народу!»',
+      'Избирательный блок «Блок Памфиловой — Гурова — Владимира Лысенко»',
+      'Союз труда',
+      'Экологическое движение России «Кедр»',
+      'Избирательный блок «Блок Ивана Рыбкина»',
+      'Блок Станислава Говорухина',
+      'Моё Отечество',
+      'Общественно-политическое движение «Общее дело»',
+      'Партия любителей пива',
+      'Мусульманское общественное движение «Нур» («Свет»)',
+      'Общественное объединение «Общество автолюбителей России»',
+      'Национально-республиканская партия России',
+      'Всероссийское мусульманское общественное движение «Союз мусульман России»',
+      'Ассоциация адвокатов России',
+      'Христианско-демократический союз — Христиане России',
+      '«Стабильная Россия»',
+      'Избирательный блок «Тихонов — Туполев — Тихонов»',
+      'Партия экономической свободы',
+      'Народно-патриотический союз',
+      'Блок независимых',
+      'Партия «Преображение Отечества»',
+      'Дума-96',
+      'Общественно-политическое движение «Поколения рубежа»',
+      'Избирательный блок «89» (89 регионов России)',
+      'Межнациональный союз',
+      'Партия большинства',
+      'Партия социальной справедливости',
+      'Консервативная партия России',
+      'Партия российских предпринимателей',
+      'Избирательный блок «Служим России!»',
+      'Русская партия'
+    ];
+
+    const formatter = new Intl.NumberFormat('ru-RU');
+
+    function log(message) {
+      const logBox = document.getElementById('auditLog');
+      const time = new Date().toLocaleTimeString('ru-RU');
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `<span class="log-time">[${time}]</span> ${message}`;
+      logBox.prepend(entry);
+    }
+
+    function render() {
+      const container = document.getElementById('partiesList');
+      container.innerHTML = '';
+
+      const totalVotes = parties.reduce((sum, p) => sum + p.votes, 0);
+      document.getElementById('totalStat').innerText = 
+        `Всего голосов: ${formatter.format(totalVotes)} ${isChurovMode ? ' (Явка: 146.12%)' : ''}`;
+
+      parties.forEach(party => {
+        let percent = '0.00';
+        if (totalVotes > 0) {
+          const raw = (party.votes / totalVotes) * 100;
+          percent = (isChurovMode ? (raw * 1.46) : raw).toFixed(2);
+        }
+
+        const item = document.createElement('div');
+        item.className = `party-item ${party.banned ? 'banned' : ''}`;
+        item.innerHTML = `
+          <div class="party-row-top">
+            <div class="party-name-box">
+              <span class="party-badge" style="background: ${party.color}"></span>
+              <span class="party-name">${party.name}</span>
+            </div>
+            <div class="party-votes">${formatter.format(party.votes)}</div>
+          </div>
+          <div class="party-meta">
+            ${percent}% · статус: ${party.banned ? 'заблокирована Минюстом' : 'активна'}
+          </div>
+          <div class="party-row-bottom">
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" style="width: ${Math.min(percent, 100)}%; background: ${party.color};"></div>
+            </div>
+            <div class="actions">
+              <button class="btn" ${party.banned ? 'disabled' : ''} onclick="addVotes(${party.id}, 100)">+100</button>
+              <button class="btn" ${party.banned ? 'disabled' : ''} onclick="addVotes(${party.id}, 1000)">+1 000</button>
+              <button class="btn btn-ban" onclick="toggleBan(${party.id})">${party.banned ? 'Разбан' : 'Бан'}</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function addVotes(partyId, amount) {
+      const party = parties.find(p => p.id === partyId);
+      if (party && !party.banned) {
+        party.votes += amount;
+        log(`Кандидату «${party.name}» добавлено ${formatter.format(amount)} голосов.`);
+        render();
+      }
+    }
+
+    function toggleBan(partyId) {
+      const party = parties.find(p => p.id === partyId);
+      if (party) {
+        party.banned = !party.banned;
+        log(party.banned 
+          ? `⚠️ Партия «${party.name}» отстранена за нарушения регламента печати листовок.` 
+          : `✅ Партия «${party.name}» восстановлена в списках по звонку сверху.`);
+        render();
+      }
+    }
+
+    // Проверка, есть ли уже партия в списках
+    function isPartyAlreadyListed(candidateName) {
+      const cleanCandidate = candidateName.toLowerCase().replace(/[^a-zа-яё0-9]/gi, '');
+      return parties.some(existing => {
+        const cleanExisting = existing.name.toLowerCase().replace(/[^a-zа-яё0-9]/gi, '');
+        return cleanCandidate === cleanExisting || 
+               cleanCandidate.includes(cleanExisting) || 
+               cleanExisting.includes(cleanCandidate);
+      });
+    }
+
+    // Спец-инструмент: Back to 1995
+    function backTo1995() {
+      const palette = [
+        '#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981', 
+        '#06b6d4', '#0ea5e9', '#3b82f6', '#6366f1', '#8b5cf6', 
+        '#d946ef', '#ec4899', '#f43f5e', '#64748b', '#e11d48'
+      ];
+
+      let addedCount = 0;
+      let timestamp = Date.now();
+
+      historicalParties1995.forEach(partyName => {
+        if (!isPartyAlreadyListed(partyName)) {
+          parties.push({
+            id: ++timestamp,
+            name: partyName,
+            votes: Math.floor(Math.random() * 2500) + 300,
+            banned: false,
+            color: palette[Math.floor(Math.random() * palette.length)]
+          });
+          addedCount++;
+        }
+      });
+
+      if (addedCount > 0) {
+        log(`📼 Временная петля активирована! Длина бюллетеня превысила 1.5 метра: добавлено ${addedCount} партий образца 1995 года.`);
+        render();
+      } else {
+        log(`📼 Все партии 1995 года уже зарегистрированы в бюллетене.`);
+      }
+    }
+
+    // Вброс ДЭГ
+    function degDrop() {
+      const er = parties.find(p => p.id === 1);
+      if (er) {
+        er.votes += 50000;
+        log(`⚡ Внеплановая синхронизация ДЭГ в 03:00 ночи: +50 000 голосов.`);
+        render();
+      }
+    }
+
+    // Подвоз бюджетников
+    function mobilizeStateWorkers() {
+      const er = parties.find(p => p.id === 1);
+      const amount = 20000;
+      if (er) {
+        er.votes += amount;
+      }
+      const incidents = [
+        `🚌 Организованный подвоз на ПАЗиках сотрудников школ и поликлиник: +${formatter.format(amount)} голосов ЕР. Фотоотчеты в WhatsApp сданы.`,
+        `🚌 Сотрудники ГБУ «Жилищник» и водоканала централизованно проголосовали под роспись у бригадира: +${formatter.format(amount)} голосов ЕР.`,
+        `🚌 Внеплановый субботник плавно перерос в дружное голосование за стабильность: +${formatter.format(amount)} голосов ЕР.`
+      ];
+      const incident = incidents[Math.floor(Math.random() * incidents.length)];
+      log(incident);
+      render();
+    }
+
+    // Удаление наблюдателей
+    function expelObservers() {
+      const reasons = [
+        'Независимый наблюдатель выведен полицией за «подозрительный щелчок ручки» и «помеху волеизъявлению граждан».',
+        'В здании УИК объявлена внеплановая учебная тревога по утечке борща. Независимые наблюдатели выставлены на улицу.',
+        'Наблюдателю вручили повестку и направление на флюорографию прямо возле урны для голосования.',
+        'Комиссия единогласно проголосовала за удаление наблюдателя за «недружелюбное выражение лица».'
+      ];
+      const reason = reasons[Math.floor(Math.random() * reasons.length)];
+      log(`🚫 ${reason}`);
+
+      const badge = document.getElementById('statusBadge');
+      if (!observersExpelled) {
+        observersExpelled = true;
+        if (badge) {
+          badge.innerHTML = '<span class="status-dot" style="background:#f59e0b;box-shadow:0 0 8px #f59e0b"></span> Наблюдатели нейтрализованы';
+          badge.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+          badge.style.color = '#fbbf24';
+          badge.style.background = 'rgba(245, 158, 11, 0.15)';
+        }
+        log(`🫖 На участках остались только лояльные наблюдатели. Чай с пирожками накрыт, протоколы подписываются в спокойной обстановке.`);
+      } else {
+        log(`☕ На участках полная тишина. Жалобы принимать некому, все сейф-пакеты под надежным присмотром.`);
+      }
+    }
+
+    function activateChurovMode() {
+      isChurovMode = !isChurovMode;
+      log(isChurovMode 
+        ? `🧮 Включен режим Чурова. Суммарный процент скорректирован до 146%.` 
+        : `Режим Чурова отключен. Возврат к базовой математике.`);
+      render();
+    }
+
+    function curtainCam() {
+      const excuses = [
+        'На УИК №145 воздушный шарик случайно загородил объектив камеры.',
+        'На УИК №78 швабра уборщицы временно упала на объектив.',
+        'На УИК №312 произошел плановый скачок напряжения на 40 минут.'
+      ];
+      const excuse = excuses[Math.floor(Math.random() * excuses.length)];
+      log(`📹 ${excuse}`);
+    }
+
+    function balanceToPlan() {
+      const otherVotes = parties.filter(p => p.id !== 1).reduce((sum, p) => sum + p.votes, 0);
+      const er = parties.find(p => p.id === 1);
+      if (er) {
+        er.votes = Math.round(otherVotes * (76.5 / (100 - 76.5)));
+        log(`🎯 План «Стабильность» активирован: Единая Россия набрала 76.5%.`);
+        render();
+      }
+    }
+
+    function resetVotes() {
+      parties.forEach(p => p.votes = 100);
+      isChurovMode = false;
+      observersExpelled = false;
+      const badge = document.getElementById('statusBadge');
+      if (badge) {
+        badge.innerHTML = '<span class="status-dot"></span> ГАС «Выборы» онлайн';
+        badge.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+        badge.style.color = '#4ade80';
+        badge.style.background = 'rgba(34, 197, 94, 0.15)';
+      }
+      log(`🔄 Все протоколы переписаны начисто.`);
+      render();
+    }
+
+    function addNewParty() {
+      const input = document.getElementById('newPartyName');
+      const name = input.value.trim();
+      if (!name) return;
+
+      const randomColors = ['#8b5cf6', '#ec4899', '#f97316', '#06b6d4', '#84cc16'];
+      parties.push({
+        id: Date.now(),
+        name: name,
+        votes: 100,
+        banned: false,
+        color: randomColors[Math.floor(Math.random() * randomColors.length)]
+      });
+
+      log(`📝 Зарегистрирован независимый кандидат «${name}». Наблюдение усилено.`);
+      input.value = '';
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>
